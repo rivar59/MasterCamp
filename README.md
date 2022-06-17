@@ -1,7 +1,7 @@
 # MasterCamp, Phantom Chief
 ***
 Le but de ce projet est de créer une application afin de "proposer une solution qui suggère des recettes saines, équilibrées, à la fois bonnes et vertueuses."
-Le but de ce programme est de répondre à cette appel d'offre.
+Le but de ce programme est de répondre à cet appel d'offre.
 
 # Pré installation
 
