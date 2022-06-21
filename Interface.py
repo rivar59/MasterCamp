@@ -7,11 +7,17 @@ Created on Mon Jun 13 11:31:29 2022
 import pandas as pd
 import streamlit as st
 import numpy as np
-st.set_page_config(page_title="Phantom Chief", page_icon="ghost")
 
+st.set_page_config(  # Alternate names: setup_page, page, layout
+	layout="centered",  # Can be "centered" or "wide". In the future also "dashboard", etc.
+	initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
+	page_title="Phantom Chief",  # String or None. Strings get appended with "• Streamlit". 
+	page_icon="ghost",  # String, anything supported by st.image, or None.
+)
 
 st.title("Phantom Chief")
-df = pd.read_csv("http://chendeb.free.fr/iris.data", names=["sl", "sw", "pl", "pw", "label"])
+df = pd.read_excel("Data/BD Phantom Chief.xlsx",index_col=1)
+df_filtre = df[['type','Difficulter','nbpersonne']]
 menu = ["Accueil","Daily","Recommendation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
 
@@ -32,18 +38,36 @@ if choice == "Accueil":
     Hello world!
     </p>
     """,unsafe_allow_html=True)
-    st.write(df)
+    st.write(df_filtre)
     elem = np.arange(len(df))
     number = st.select_slider(
     'Select the number of the recipe',
-    options=elem)
-    b = int(number)
-    c = df.iloc[b]["label"]
-    st.write(type(c))
-    st.write(c)
-    d = df.iloc[b]
-    st.write(d.to_string())
-    
+    options=df.index)
+    d = df[df.index == number]
+    ingre = np.array(" ".join(df[df.index == number]["Ingredient"].values).split(","), dtype=np.str)
+    qt = np.array(" ".join(df[df.index == number]["QtIngredient"].values).split(","), dtype=np.str)
+    info = np.char.add(qt, " ")
+    info = np.char.add(info, ingre)
+    st.write("""
+    <h2 style="text-align:center;color:green">
+    Ingredients
+    </h2>
+    """,unsafe_allow_html=True)
+    for ing in info:
+        st.write(ing)
+    st.write("""
+    <h2 style="text-align:center;color:blue">
+    ETAPE
+    </h2>
+    """,unsafe_allow_html=True)
+    etapechoosing = "".join(df[df.index == number]["Etape"]).split(";")
+    for etape in etapechoosing:
+        st.write(etape)
+    st.write("""
+        <h2 style="text-align:center;color:red">
+        Enjoy !! :D
+        </h2>
+        """,unsafe_allow_html=True)
 elif choice == "Daily":
     st.write("""
     #My Daily \n
@@ -59,8 +83,8 @@ elif choice == "Recommendation":
     'Select a number of recipe',
     options=["5", "10", "15", "20"])
     st.write('This is your element', df.head(int(number)))
-    labelchoose = st.selectbox("Type", set(df["label"]))
-    st.write(df.loc[df["label"] == labelchoose])
+    labelchoose = st.selectbox("Type", set(df["Difficulter"]))
+    st.write(df.loc[df["Difficulter"] == labelchoose])
 elif choice == "Gaspi":
     st.write("""
     #My Gaspi \n
