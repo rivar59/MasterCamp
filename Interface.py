@@ -20,80 +20,12 @@ df = pd.read_excel("Data/BD Phantom Chief.xlsx",index_col=1)
 df_filtre = df[['type','Difficulter','nbpersonne']]
 menu = ["Accueil","Daily","Recommendation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
-
-
-def show_choice(df):
-    name_choose = st.select_slider(
-    'Select the name of the recipe',
-    options=df.index)
-    temps = " ".join(df[df.index == name_choose]["TempEtape"].values).split(",")
+df['tempstotal'] = 0
+for df_val in df.index:
+    temps = "".join(df["TempEtape"][df_val]).split(",")
     for x in range (len(temps)):
         temps[x] = int(temps[x][:-3])
-    tempstotal = str(sum(temps)) + "min"
-    dif = (df[df.index == name_choose]["Difficulter"].values)[0]
-    nbpers = (df[df.index == name_choose]["nbpersonne"].values)[0]
-    st.write(f"Temps total de la recette : {tempstotal}. Difficulté : {dif}")
-    st.write(f"Pour : {nbpers} personnes")
-
-    ingre = np.array(" ".join(df[df.index == name_choose]["Ingredient"].values).split(","), dtype=np.str)
-    qt = np.array(" ".join(df[df.index == name_choose]["QtIngredient"].values).split(","), dtype=np.str)
-    info = np.char.add(qt, " ")
-    info = np.char.add(info, ingre)
-    st.write("""
-    <h2 style="text-align:center;color:green">
-    Ingredients
-    </h2>
-    """,unsafe_allow_html=True)
-    for ing in info:
-        st.write(ing)
-    st.write("""
-    <h2 style="text-align:center;color:blue">
-    ETAPE
-    </h2>
-    """,unsafe_allow_html=True)
-    etapechoosing = "".join(df[df.index == name_choose]["Etape"]).split(";")
-    for etape in etapechoosing:
-        st.write(etape)
-    st.write("""
-        <h2 style="text-align:center;color:red">
-        Enjoy !! :D
-        </h2>
-        """,unsafe_allow_html=True)
-
-def printwithbutton(df, index):
-    temps = " ".join(df[df.index == name_choose]["TempEtape"].values).split(",")
-    for x in range (len(temps)):
-        temps[x] = int(temps[x][:-3])
-    tempstotal = str(sum(temps)) + "min"
-    dif = (df[df.index == name_choose]["Difficulter"].values)[0]
-    nbpers = (df[df.index == name_choose]["nbpersonne"].values)[0]
-    st.write(f"Temps total de la recette : {tempstotal}. Difficulté : {dif}")
-    st.write(f"Pour : {nbpers} personnes")
-
-    ingre = np.array(" ".join(df[df.index == name_choose]["Ingredient"].values).split(","), dtype=np.str)
-    qt = np.array(" ".join(df[df.index == name_choose]["QtIngredient"].values).split(","), dtype=np.str)
-    info = np.char.add(qt, " ")
-    info = np.char.add(info, ingre)
-    st.write("""
-    <h2 style="text-align:center;color:green">
-    Ingredients
-    </h2>
-    """,unsafe_allow_html=True)
-    for ing in info:
-        st.write(ing)
-    st.write("""
-    <h2 style="text-align:center;color:blue">
-    ETAPE
-    </h2>
-    """,unsafe_allow_html=True)
-    etapechoosing = "".join(df[df.index == name_choose]["Etape"]).split(";")
-    for etape in etapechoosing:
-        st.write(etape)
-    st.write("""
-        <h2 style="text-align:center;color:red">
-        Enjoy !! :D
-        </h2>
-        """,unsafe_allow_html=True)
+    df['tempstotal'][df_val] = sum(temps)
 
 def proposerecipe(df):
     for df_val in df.index:
@@ -106,7 +38,7 @@ def proposerecipe(df):
         temps = "".join(df["TempEtape"][df_val]).split(",")
         for x in range (len(temps)):
             temps[x] = int(temps[x][:-3])
-        tempstotal = str(sum(temps)) + "min"
+        tempstotal = str(df['tempstotal'][df_val]) + "min"
         st.write(f"""<h3 style="text-align:center;color:green">
                  Environ : {tempstotal}
                  </h3>
@@ -130,6 +62,7 @@ def proposerecipe(df):
             """,unsafe_allow_html=True)
             for ing in info:
                 st.write(ing)
+            st.write("- - - - - - - - - - - - -")
 
         etape = st.checkbox("Etape pour " + df_val)
         etapelist.append(etape)
@@ -160,10 +93,18 @@ if choice == "Accueil":
         Main page
     </h1>
     <h2 style="text-align:center">
-    #Phatom Chief
+    #Phantom Chief
     </h2>
     """,unsafe_allow_html=True)
-    proposerecipe(df.head(5))
+    st.write("""
+    <h1 style="color:#AEC6CF;text-align:center">
+        C'est notre page d'acceuil :D
+    </h1>
+    <h2 style="text-align:center">
+    V1.1
+    </h2>
+    """,unsafe_allow_html=True)
+    
 
 elif choice == "Daily":
     st.write("""
@@ -172,10 +113,10 @@ elif choice == "Daily":
     """)
     number = st.select_slider(
     'Select a number of recipe',
-    options=["5", "10", "15", "20"])
+    options=[x for x in range(5,11)])
     df3 = df.head(int(number))
-    st.write('This is your element', df3)
     proposerecipe(df3)
+    
 
 elif choice == "Recommendation":
     st.write("""
@@ -185,8 +126,11 @@ elif choice == "Recommendation":
     
     labelchoose = st.selectbox("Type", set(df["Difficulter"]))
     df2 = df.loc[df["Difficulter"] == labelchoose]
-    st.write(df2)
-    show_choice(df2)
+    time = st.checkbox("Trié par temps")
+    if time:
+        df2 = df2.sort_values(by = 'tempstotal')
+    #st.write(df2)
+    proposerecipe(df2)
 
 elif choice == "Gaspi":
     st.write("""
@@ -195,7 +139,7 @@ elif choice == "Gaspi":
     """)
     inpute = st.text_area("Please insert your ingredients separate with enter ...")
     if (inpute != ""):
-        st.write(inpute.split("\n"))
+        proposerecipe(df)
     else:
         st.write("Waiting for your ingredients...")
 
