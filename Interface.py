@@ -22,8 +22,7 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
 
 st.title("Phantom Chief")
 df = pd.read_excel("Data/BD Phantom Chief.xlsx",index_col=1)
-df_aliment = pd.read_excel("Data/Aliment.xlsx",index_col=('Index'))
-df_filtre = df[['type','Difficulter','nbpersonne']]
+df_aliment = pd.read_excel("Data/Aliment_v3.xlsx",index_col=('Index'), decimal=',')
 menu = ["Accueil","Daily","Recommendation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
 df['tempstotal'] = 0
@@ -33,7 +32,7 @@ for df_val in df.index:
         temps[x] = int(temps[x][:-3])
     df['tempstotal'][df_val] = sum(temps)
 
-def proposerecipe(df):
+def color_all(df):
     df['color'] = 0
     green = Color("green")
     colors = list(green.range_to(Color("red"), (len(df) + 1)))
@@ -41,66 +40,86 @@ def proposerecipe(df):
     for df_val in df.index:
         df['color'][df_val] = colors[i].hex
         i += 1
+    return df
+
+def proposerecipe(df):
     for df_val in df.index:
         color = (df['color'][df_val])[1:]
         while len(color) != 6:
             color = '0' + color
         color = '#' + color
-        st.write(f"""<h3 style="text-align:center;color:{color}">
+        st.write(f"""<h2 style="text-align:center;color:{color}">
                  {df_val}
-                 </h3>
-                 <h4 style="text-align:center;color:light">
-                 {df['nbpersonne'][df_val]} personnes
-                 </h4>""", unsafe_allow_html=True)
-        temps = "".join(df["TempEtape"][df_val]).split(",")
-        for x in range (len(temps)):
-            temps[x] = int(temps[x][:-3])
-        tempstotal = str(df['tempstotal'][df_val]) + "min"
-        st.write(f"""<h3 style="text-align:center">
-                 Environ : {tempstotal}
-                 </h3>
-                 <h4 style="text-align:center;color:light">
-                 {" ou ".join("".join(df['type'][df_val]).split(","))}
-                 </h4>""", unsafe_allow_html=True)
+                 </h2>""", unsafe_allow_html=True)
+                 
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.write(f"""
+                     <h4 style="text-align:center;color:{color}">
+                     {df['nbpersonne'][df_val]} personnes
+                     </h4>""", unsafe_allow_html=True)
+            st.write(f"""
+                     <h4 style="text-align:center;color:{color}">
+                     Bilan carbonne de la recette = {df["color"][df_val]}
+                     </h4>
+                     """,unsafe_allow_html=True)
+
+        with col2:
+            st.image(
+                df['Url'][df_val]
+            )
+
+        with col3:
+            temps = "".join(df["TempEtape"][df_val]).split(",")
+            for x in range (len(temps)):
+                temps[x] = int(temps[x][:-3])
+            tempstotal = str(df['tempstotal'][df_val]) + "min"
+            st.write(f"""<h4 style="text-align:center;color:{color}">
+                     Environ : {tempstotal}
+                     </h4>
+                     <h4 style="text-align:center;color:{color}">
+                     {" ou ".join("".join(df['type'][df_val]).split(","))}
+                     </h4>""", unsafe_allow_html=True)
+
+        col2_1, col2_2 = st.columns(2)
         i = 0
         ingrlist = []
         etapelist = []
-        ingr = st.checkbox("Ingredients pour " + df_val)
-        ingrlist.append(ingr)
-        if ingrlist[i]:
-            ingre = np.array("".join(df["Ingredient"][df_val]).split(","), dtype=np.str)
-            qt = np.array("".join(df["QtIngredient"][df_val]).split(","), dtype=np.str)
-            info = np.char.add(qt, " ")
-            info = np.char.add(info, ingre)
-            st.write("""
-            <h2 style="text-align:center;color:green">
-            Ingredients
-            </h2>
-            """,unsafe_allow_html=True)
-            for ing in info:
-                st.write(ing)
-            st.write("- - - - - - - - - - - - -")
-
-        etape = st.checkbox("Etape pour " + df_val)
-        etapelist.append(etape)
-
-        if etapelist[i]:
-            st.write("""
-            <h2 style="text-align:center;color:blue">
-            ETAPE
-            </h2>
-            """,unsafe_allow_html=True)
-            etapechoosing = "".join(df["Etape"][df_val]).split(";")
-            for etape in etapechoosing:
-                st.write(etape)
-            st.write("""
-                <h2 style="text-align:center;color:red">
-                Enjoy !! :D
+        with col2_1:
+            ingr = st.checkbox("Ingredients pour " + df_val)
+            ingrlist.append(ingr)
+            if ingrlist[i]:
+                ingre = np.array("".join(df["Ingredient"][df_val]).split(","), dtype=np.str)
+                qt = np.array("".join(df["QtIngredient"][df_val]).split(","), dtype=np.str)
+                info = np.char.add(qt, " ")
+                info = np.char.add(info, ingre)
+                st.write("""
+                <h2 style="text-align:center;color:green">
+                Ingredients
                 </h2>
                 """,unsafe_allow_html=True)
+                for ing in info:
+                    st.write(ing)
+                st.write("- - - - - - - - - - - - -")
+
+        with col2_2:
+            etape = st.checkbox("Etape pour " + df_val)
+            etapelist.append(etape)
+    
+            if etapelist[i]:
+                st.write("""
+                <h2 style="text-align:center;color:blue">
+                ETAPE
+                </h2>
+                """,unsafe_allow_html=True)
+                etapechoosing = "".join(df["Etape"][df_val]).split(";")
+                for etape in etapechoosing:
+                    st.write(etape)
+                st.write("- - - - - - - - - - - - -")
 
         i+= 1
-        st.write("- - - - - - - - - - - - - - - - - - - -")
+
+        st.write("""- - - - - - - - - - - - - - - - - - - -""")
 
 
 
@@ -114,8 +133,7 @@ def get_co2_Unité(ingredient,Aliment):
     return Aliment.iloc[ind_max,:]
 
 def get_co2_Liste(Liste_ingredient,Aliment):
-    retour=np.zeros((1,3))
-    print(retour)
+    retour=np.zeros((1,len(Aliment.columns)))
     for i in Liste_ingredient:
         a=np.array(get_co2_Unité(i, Aliment))
         retour=np.vstack((retour,a))
@@ -126,7 +144,7 @@ def Algo_distance( Aliment, Re, Input_liste=[]):
     Recette = pd.DataFrame(Re)
     df_retour = get_co2_Liste(Input_liste,Aliment)
     L_retour=list(df_retour['Ingredient'])
-    st.write(L_retour)
+    st.write(f"""Nous avons compris {" ".join(L_retour)}""")
     S_Recette=Recette['Ingredient']
     distance=[]
     print(L_retour)
@@ -139,24 +157,33 @@ def Algo_distance( Aliment, Re, Input_liste=[]):
     return Recette
 
 
-
+df = color_all(df)
 if choice == "Accueil":
     st.write(f"""
     <h1 style="color:#AEC6CF;text-align:center">
-        Main page
+        Welcome
     </h1>
     <h2 style="text-align:center">
     #Phantom Chief
     </h2>
     """,unsafe_allow_html=True)
     st.write("""
-    <h1 style="color:#AEC6CF;text-align:center">
-        C'est notre page d'acceuil :D
-    </h1>
     <h2 style="text-align:center">
     V1.1
     </h2>
     """,unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.write(' ')
+
+    with col2:
+        st.image(
+            "Ressource/ghostEnAttendantValHein.png",
+        )
+
+    with col3:
+        st.write(' ')
 
 elif choice == "Daily":
     st.write("""
@@ -174,8 +201,13 @@ elif choice == "Recommendation":
     #My Recommendation \n
     Hello *world!*
     """)
-    labelchoose = st.selectbox("Type", set(df["Difficulter"]))
-    df2 = df.loc[df["Difficulter"] == labelchoose]
+    tochoose_level = set(df["Difficulter"])
+    tochoose_level.add("Toutes les recettes")
+    labelchoose = st.selectbox("Type", tochoose_level)
+    if (labelchoose != "Toutes les recettes"):
+        df2 = df.loc[df["Difficulter"] == labelchoose]
+    else:
+        df2 = df
     time = st.checkbox("Trié par temps")
     if time:
         df2 = df2.sort_values(by = 'tempstotal')
@@ -184,14 +216,14 @@ elif choice == "Recommendation":
         proposerecipe(df2[df2['presenceViande'] == 0])
     else:
         proposerecipe(df2)
-    
+
     #st.write(df2)
-    
+
 
 elif choice == "Gaspi":
     st.write("""
     #My Gaspi \n
-    Hello *world!*
+    Essayons d'éviter le gaspillage
     """)
     inpute = st.text_area("Please insert your ingredients separate with enter ...")
     if (inpute != ""):
