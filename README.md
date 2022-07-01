@@ -13,9 +13,16 @@ Notre application utilise Streamlit. Afin de pouvoir l'utiliser vous devrez inst
 
 3. Effectuer la commande : "pip install streamlit"
 
-4. Pour verifier si l'information a bien eu lieu vous pouvez effectuer la commande "streamlit hello"
+4. Effectuer la commande : "pip install colour"
+
+5. Effectuer la commande : "pip install jaro-winkler"
+
+6. Pour verifier si l'information a bien eu lieu vous pouvez effectuer la commande "streamlit hello"
 
 Pour plus d'informations : https://docs.streamlit.io/library/get-started/installation
+https://pypi.org/project/colour/
+https://copypaste.guru/WhereIsMyPythonModule/how-to-install-the-python-package-jaro-winkler-with-pip
+
 
 ## Notre programme
 
