@@ -175,7 +175,7 @@ if choice == "Accueil":
 
     with col2:
         st.image(
-            "Ressource/ghostEnAttendantValHein.png",
+            "Ressource/logo.png",
         )
 
     with col3:
