@@ -19,25 +19,12 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
 
 
 
-
-st.title("Phantom Chief")
-df = pd.read_excel("Data/BD Phantom Chief.xlsx",index_col=1)
-df_aliment = pd.read_excel("Data/Aliment_v3.xlsx",index_col=('Index'), decimal=',')
-menu = ["Accueil","Daily","Recommendation","Gaspi"]
-choice = st.sidebar.selectbox("Menu", menu)
-df['tempstotal'] = 0
-for df_val in df.index:
-    temps = "".join(df["TempEtape"][df_val]).split(",")
-    for x in range (len(temps)):
-        temps[x] = int(temps[x][:-3])
-    df['tempstotal'][df_val] = sum(temps)
-
 def color_all(df):
     df['color'] = 0
     green = Color("green")
     colors = list(green.range_to(Color("red"), (len(df) + 1)))
     i = 0
-    for df_val in df.index:
+    for df_val in df.sort_values(by = 'Prediction eco').index:
         df['color'][df_val] = colors[i].hex
         i += 1
     return df
@@ -51,7 +38,7 @@ def proposerecipe(df):
         st.write(f"""<h2 style="text-align:center;color:{color}">
                  {df_val}
                  </h2>""", unsafe_allow_html=True)
-                 
+
         col1, col2, col3 = st.columns(3)
         with col1:
             st.write(f"""
@@ -60,14 +47,12 @@ def proposerecipe(df):
                      </h4>""", unsafe_allow_html=True)
             st.write(f"""
                      <h4 style="text-align:center;color:{color}">
-                     Bilan carbonne de la recette = {df["color"][df_val]}
+                     Bilan carbonne de la recette : {round(df["Prediction eco"][df_val]*100)} sur 100
                      </h4>
                      """,unsafe_allow_html=True)
 
         with col2:
-            st.image(
-                df['Url'][df_val]
-            )
+            st.image(df['Url'][df_val])
 
         with col3:
             temps = "".join(df["TempEtape"][df_val]).split(",")
@@ -105,7 +90,6 @@ def proposerecipe(df):
         with col2_2:
             etape = st.checkbox("Etape pour " + df_val)
             etapelist.append(etape)
-    
             if etapelist[i]:
                 st.write("""
                 <h2 style="text-align:center;color:blue">
@@ -120,7 +104,6 @@ def proposerecipe(df):
         i+= 1
 
         st.write("""- - - - - - - - - - - - - - - - - - - -""")
-
 
 
 def get_co2_Unité(ingredient,Aliment):
@@ -156,6 +139,19 @@ def Algo_distance( Aliment, Re, Input_liste=[]):
     Recette['distance']=distance
     return Recette
 
+st.title("Phantom Chief")
+df = pd.read_excel("Data/BD Phantom Chief final.xlsx",index_col=1)
+df_aliment = pd.read_excel("Data/Aliment_v3.xlsx",index_col=('Index'), decimal=',')
+menu = ["Accueil","Daily","Recommandation","Gaspi"]
+choice = st.sidebar.selectbox("Menu", menu)
+df['tempstotal'] = 0
+for df_val in df.index:
+    temps = "".join(df["TempEtape"][df_val]).split(",")
+    for x in range (len(temps)):
+        temps[x] = int(temps[x][:-3])
+    df['tempstotal'][df_val] = sum(temps)
+
+
 
 df = color_all(df)
 if choice == "Accueil":
@@ -186,24 +182,19 @@ if choice == "Accueil":
         st.write(' ')
 
 elif choice == "Daily":
-    st.write("""
-    #My Daily \n
-    Hello *world!*
-    """)
     number = st.select_slider(
     'Select a number of recipe',
     options=[x for x in range(5,11)])
-    df3 = df.head(int(number))
-    proposerecipe(df3)
+    df3 = df.sample(n = 11)
+    proposerecipe(df3.head(number))
 
-elif choice == "Recommendation":
+elif choice == "Recommandation":
     st.write("""
-    #My Recommendation \n
-    Hello *world!*
+    My Recommendation \n
     """)
     tochoose_level = set(df["Difficulter"])
     tochoose_level.add("Toutes les recettes")
-    labelchoose = st.selectbox("Type", tochoose_level)
+    labelchoose = st.selectbox("Type", tochoose_level, index = 1)
     if (labelchoose != "Toutes les recettes"):
         df2 = df.loc[df["Difficulter"] == labelchoose]
     else:
@@ -211,6 +202,12 @@ elif choice == "Recommendation":
     time = st.checkbox("Trié par temps")
     if time:
         df2 = df2.sort_values(by = 'tempstotal')
+    sort_eco = st.checkbox("Trie par impact environnemental")
+    if sort_eco:
+        df2 = df2.sort_values(by = 'Prediction eco')
+    if sort_eco and time:
+        df2 = df2.sort_values(by = ['Prediction eco','tempstotal'])
+
     vege = st.checkbox("Affiché que les plats végétariens ?")
     if vege:
         proposerecipe(df2[df2['presenceViande'] == 0])
@@ -227,7 +224,13 @@ elif choice == "Gaspi":
     """)
     inpute = st.text_area("Please insert your ingredients separate with enter ...")
     if (inpute != ""):
-        newdataframe = Algo_distance(df_aliment, df, inpute.split("\n"))
+        ress = inpute.split("\n")
+        l = []
+        for words in ress:
+            if words != "" and words != " ":
+                word = words[0].upper() + words[1:]
+                l.append(word)
+        newdataframe = Algo_distance(df_aliment, df, l)
         proposerecipe(newdataframe.sort_values(by = 'distance', ascending = False).head(10))
     else:
         st.write("Waiting for your ingredients...")
