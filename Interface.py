@@ -222,12 +222,11 @@ elif choice == "Recommandation":
     if sort_eco and time:
         df2 = df2.sort_values(by = ['Prediction eco','tempstotal'])
 
-    #"""vege = st.checkbox("Affiché que les plats végétariens ?")
-    #if vege:
-    #    proposerecipe(df2[df2['presenceViande'] == 0])
-    #else:
-    #    proposerecipe(df2)"""
-    proposerecipe(df2)
+    vege = st.checkbox("Affiché que les plats végétariens ?")
+    if vege:
+        proposerecipe(df2[df2['presenceViande'] == 0])
+    else:
+        proposerecipe(df2)
     #st.write(df2)
 
 
