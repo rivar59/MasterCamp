@@ -47,7 +47,7 @@ def proposerecipe(df):
                      </h4>""", unsafe_allow_html=True)
             st.write(f"""
                      <h4 style="text-align:center;color:{color}">
-                     Bilan carbonne de la recette : {round(df["Prediction eco"][df_val]*100)} sur 100
+                     Phantom score : {round(df["Prediction eco"][df_val]*100)} sur 100
                      </h4>
                      """,unsafe_allow_html=True)
 
@@ -199,8 +199,7 @@ elif choice == "Daily":
     number = st.select_slider(
     'Select a number of recipe',
     options=[x for x in range(5,11)])
-    df3 = df.sample(n = 11)
-    proposerecipe(df3.head(number))
+    proposerecipe(df.head(number))
 
 elif choice == "Recommandation":
     st.write("""
@@ -216,7 +215,7 @@ elif choice == "Recommandation":
     time = st.checkbox("Trié par temps")
     if time:
         df2 = df2.sort_values(by = 'tempstotal')
-    sort_eco = st.checkbox("Trie par impact environnemental")
+    sort_eco = st.checkbox("Trie par Phantom score")
     if sort_eco:
         df2 = df2.sort_values(by = 'Prediction eco')
     if sort_eco and time:
