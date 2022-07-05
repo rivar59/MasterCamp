@@ -141,7 +141,7 @@ def Algo_distance( Aliment, Re, Input_liste=[]):
 
 st.title("Phantom Chief")
 df = pd.read_excel("Data/BD Phantom Chief final.xlsx",index_col=1)
-df_aliment = pd.read_excel("Data/Aliment_v3.xlsx",index_col=('Index'), decimal=',')
+df_aliment = pd.read_excel("Data/Aliment_v4.xlsx",index_col=('Index'), decimal=',')
 menu = ["Accueil","Daily","Recommandation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
 st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
