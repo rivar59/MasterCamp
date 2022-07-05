@@ -144,6 +144,20 @@ df = pd.read_excel("Data/BD Phantom Chief final.xlsx",index_col=1)
 df_aliment = pd.read_excel("Data/Aliment_v3.xlsx",index_col=('Index'), decimal=',')
 menu = ["Accueil","Daily","Recommandation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
+st.sidebar.image(
+            "Ressource/logo.png",
+        )
 df['tempstotal'] = 0
 for df_val in df.index:
     temps = "".join(df["TempEtape"][df_val]).split(",")
@@ -165,7 +179,7 @@ if choice == "Accueil":
     """,unsafe_allow_html=True)
     st.write("""
     <h2 style="text-align:center">
-    V1.1
+    V2.0
     </h2>
     """,unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
@@ -222,7 +236,7 @@ elif choice == "Gaspi":
     #My Gaspi \n
     Essayons d'éviter le gaspillage
     """)
-    inpute = st.text_area("Please insert your ingredients separate with enter ...")
+    inpute = st.text_area("Insérez vos ingrédients séparés avec des retours à la ligne...")
     if (inpute != ""):
         ress = inpute.split("\n")
         l = []
@@ -233,7 +247,7 @@ elif choice == "Gaspi":
         newdataframe = Algo_distance(df_aliment, df, l)
         proposerecipe(newdataframe.sort_values(by = 'distance', ascending = False).head(10))
     else:
-        st.write("Waiting for your ingredients...")
+        st.write("En attente de vos ingrédients...")
 
 else:
     st.write("""
