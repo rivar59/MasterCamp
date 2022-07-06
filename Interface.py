@@ -47,7 +47,7 @@ def proposerecipe(df):
                      </h4>""", unsafe_allow_html=True)
             st.write(f"""
                      <h4 style="text-align:center;color:{color}">
-                     Phantom score : {round(df["Prediction eco"][df_val]*100)} sur 100
+                     Phantom score : {round(df["Prediction eco"][df_val]*100)} %
                      </h4>
                      """,unsafe_allow_html=True)
 
