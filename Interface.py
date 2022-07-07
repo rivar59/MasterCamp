@@ -41,13 +41,14 @@ def proposerecipe(df):
 
         col1, col2, col3 = st.columns(3)
         with col1:
+            phatom_note = abs(100 - round(df["Prediction eco"][df_val]*100))
             st.write(f"""
                      <h4 style="text-align:center;color:{color}">
                      {df['nbpersonne'][df_val]} personnes
                      </h4>""", unsafe_allow_html=True)
             st.write(f"""
                      <h4 style="text-align:center;color:{color}">
-                     Phantom score : {round(df["Prediction eco"][df_val]*100)} %
+                     Phantom score : {phatom_note} %
                      </h4>
                      """,unsafe_allow_html=True)
 
@@ -142,7 +143,7 @@ def Algo_distance( Aliment, Re, Input_liste=[]):
 st.title("Phantom Chief")
 df = pd.read_excel("Data/BD Phantom Chief final.xlsx",index_col=1)
 df_aliment = pd.read_excel("Data/Aliment_v4.xlsx",index_col=('Index'), decimal=',')
-menu = ["Accueil","Daily","Recommandation","Gaspi"]
+menu = ["Accueil","Journalière","Recommandation","Gaspi"]
 choice = st.sidebar.selectbox("Menu", menu)
 st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
 st.sidebar.write("\n\n\n\n\n\n\n\n\n\n")
@@ -171,7 +172,7 @@ df = color_all(df)
 if choice == "Accueil":
     st.write(f"""
     <h1 style="color:#AEC6CF;text-align:center">
-        Welcome
+        Bienvenue
     </h1>
     <h2 style="text-align:center">
     #Phantom Chief
@@ -195,15 +196,15 @@ if choice == "Accueil":
     with col3:
         st.write(' ')
 
-elif choice == "Daily":
+elif choice == "Journalière":
     number = st.select_slider(
-    'Select a number of recipe',
+    'Combien de recette ?',
     options=[x for x in range(5,11)])
     proposerecipe(df.head(number))
 
 elif choice == "Recommandation":
     st.write("""
-    My Recommendation \n
+    Une Recommandation \n
     """)
     tochoose_level = set(df["Difficulter"])
     tochoose_level.add("Toutes les recettes")
